@@ -16,6 +16,5 @@ add_subdirectory(SDL-1)
 
 target_link_libraries(BorderlessExample 
 PRIVATE 
-    SDL2::SDL2-static
-    SDL2::SDL2main
+    SDL3::SDL3-static
 )

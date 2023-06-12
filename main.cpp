@@ -2,11 +2,10 @@
 and may not be redistributed without written permission.*/
 
 //Using SDL, standard IO, and strings
-#include <SDL.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_syswm.h>
 #include <stdio.h>
 #include <string>
-
-#include "SDL_syswm.h"
 
 #include <Windows.h>
 #include <windowsx.h>
@@ -70,71 +69,6 @@ SDL_HitTestResult HitTestCallback(SDL_Window* win, const SDL_Point* area, void* 
   return SDL_HITTEST_NORMAL;
 }
 
-/*
-bool maximized(HWND hwnd) {
-    WINDOWPLACEMENT placement;
-    if (!::GetWindowPlacement(hwnd, &placement)) {
-            return false;
-    }
-
-    return placement.showCmd == SW_MAXIMIZE;
-}
-
-void adjust_maximized_client_rect(HWND window, RECT& rect) {
-    if (!maximized(window)) {
-        return;
-    }
-
-    auto monitor = ::MonitorFromWindow(window, MONITOR_DEFAULTTONULL);
-    if (!monitor) {
-        return;
-    }
-
-    MONITORINFO monitor_info{};
-    monitor_info.cbSize = sizeof(monitor_info);
-    if (!::GetMonitorInfoW(monitor, &monitor_info)) {
-        return;
-    }
-
-    // when maximized, make the client area fill just the monitor (without task bar) rect,
-    // not the whole window rect which extends beyond the monitor.
-    rect = monitor_info.rcWork;
-}
-
-
-int incSDLEventWatcher(void* userData, SDL_Event* event)
-{
-    if (event->type != SDL_SYSWMEVENT)
-    {
-        return 0;
-    }
-
-    SDL_SysWMinfo wmInfo;
-    SDL_VERSION(&wmInfo.version);
-    SDL_GetWindowWMInfo(gWindow, &wmInfo);
-    HWND handle = wmInfo.info.win.window;
-
-    auto winMsg =  event->syswm.msg->msg.win;
-
-    switch(winMsg.msg)
-    {
-        case WM_NCCALCSIZE:
-        {
-            if (winMsg.wParam == TRUE ) {// && window.borderless) {
-                auto& params = *reinterpret_cast<NCCALCSIZE_PARAMS*>(winMsg.lParam);
-                adjust_maximized_client_rect(handle, params.rgrc[0]);
-                return 0;
-            }
-            break;
-        }
-        default:
-        {
-            break;
-        }
-    }
-    return 0;
-}
-*/
 
 // we cannot just use WS_POPUP style
 // WS_THICKFRAME: without this the window cannot be resized and so aero snap, de-maximizing and minimizing won't work
@@ -154,15 +88,13 @@ SDL_Window* CreateSdlWindow()
   //Create window
   SDL_SetHintWithPriority("SDL_BORDERLESS_RESIZABLE_STYLE", "1", SDL_HINT_OVERRIDE);
   SDL_SetHintWithPriority("SDL_BORDERLESS_WINDOWED_STYLE", "1", SDL_HINT_OVERRIDE);
-  SDL_SetHintWithPriority("SDL_HINT_WINDOWS_ADJUST_BORDERLESS_MAXIMIZED_CLIENTRECT", "1", SDL_HINT_OVERRIDE);
-  auto window = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 600, SDL_WINDOW_BORDERLESS | SDL_WINDOW_RESIZABLE);
+  auto window = SDL_CreateWindow( "SDL Tutorial", 800, 600, SDL_WINDOW_BORDERLESS | SDL_WINDOW_RESIZABLE);
   if (window == nullptr)
     return nullptr;
 
   SDL_SetWindowHitTest(window, &HitTestCallback, nullptr);
   SDL_SysWMinfo wmInfo;
-  SDL_VERSION(&wmInfo.version);
-  SDL_GetWindowWMInfo(window, &wmInfo);
+  SDL_GetWindowWMInfo(window, &wmInfo, SDL_SYSWM_CURRENT_VERSION);
   HWND handle = wmInfo.info.win.window;
   
   //::SetWindowLongPtrW(handle, GWL_STYLE, static_cast<LONG>(Style::aero_borderless));
@@ -211,7 +143,7 @@ bool init()
     else
     {
       //Create renderer for window
-      gRenderer = SDL_CreateRenderer( gWindow, -1, SDL_RENDERER_ACCELERATED );
+      gRenderer = SDL_CreateRenderer( gWindow, NULL, SDL_RENDERER_ACCELERATED );
       if( gRenderer == NULL )
       {
         printf( "Renderer could not be created! SDL Error: %s\n", SDL_GetError() );
@@ -281,7 +213,7 @@ SDL_Texture* loadTexture( std::string path )
     }
 
     //Get rid of old loaded surface
-    SDL_FreeSurface( loadedSurface );
+    SDL_DestroySurface( loadedSurface );
   }
 
   return newTexture;
@@ -317,11 +249,11 @@ int main( int argc, char* args[] )
         while( SDL_PollEvent( &e ) != 0 )
         {
           //User requests quit
-          if( e.type == SDL_QUIT )
+          if( e.type == SDL_EVENT_QUIT )
           {
             quit = true;
           }
-          else if (e.type == SDL_KEYDOWN)
+          else if (e.type == SDL_EVENT_KEY_DOWN)
           {
             switch (e.key.keysym.sym)
             {
@@ -336,17 +268,17 @@ int main( int argc, char* args[] )
         }
         
         int w, h;
-        SDL_GetRendererOutputSize(gRenderer, &w, &h);
+        SDL_GetCurrentRenderOutputSize(gRenderer, &w, &h);
         //SDL_GL_GetDrawableSize(gWindow, &w, &h);
         
         const SDL_Rect rect{0,0, w, h};
-        SDL_RenderSetViewport(gRenderer, &rect);
+        SDL_SetRenderViewport(gRenderer, &rect);
 
         //Clear screen
         SDL_RenderClear( gRenderer );
 
         //Render texture to screen
-        SDL_RenderCopy( gRenderer, gTexture, NULL, NULL );
+        SDL_RenderTexture( gRenderer, gTexture, NULL, NULL );
 
         //Update screen
         SDL_RenderPresent( gRenderer );

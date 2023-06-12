@@ -154,7 +154,7 @@ SDL_Window* CreateSdlWindow()
   //Create window
   SDL_SetHintWithPriority("SDL_BORDERLESS_RESIZABLE_STYLE", "1", SDL_HINT_OVERRIDE);
   SDL_SetHintWithPriority("SDL_BORDERLESS_WINDOWED_STYLE", "1", SDL_HINT_OVERRIDE);
-  SDL_SetHintWithPriority("SDL_HINT_WINDOWS_ADJUST_BORDERLESS_MAXIMIZED_CLIENTRECT", "1", SDL_HINT_OVERRIDE);
+  SDL_SetHintWithPriority(SDL_HINT_WINDOWS_ADJUST_BORDERLESS_MAXIMIZED_CLIENTRECT, "1", SDL_HINT_OVERRIDE);
   auto window = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 600, SDL_WINDOW_BORDERLESS | SDL_WINDOW_RESIZABLE);
   if (window == nullptr)
     return nullptr;
@@ -165,8 +165,7 @@ SDL_Window* CreateSdlWindow()
   SDL_GetWindowWMInfo(window, &wmInfo);
   HWND handle = wmInfo.info.win.window;
   
-  //::SetWindowLongPtrW(handle, GWL_STYLE, static_cast<LONG>(Style::aero_borderless));
-
+  //::SetWindowLongPtrW(handle, GWL_STYLE, static_cast<LONG>(Style::aero_borderless
   
   //SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
   //SDL_AddEventWatch(&incSDLEventWatcher, NULL);

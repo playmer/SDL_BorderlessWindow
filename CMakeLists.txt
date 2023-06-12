@@ -9,8 +9,6 @@ PRIVATE
     main.cpp
 )
 
-target_include_directories(BorderlessExample PRIVATE imgui ../SDL-1/include)
-
 set(SDL_STATIC ON)
 add_subdirectory(SDL-1)
 

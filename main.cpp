@@ -70,6 +70,7 @@ SDL_HitTestResult HitTestCallback(SDL_Window* win, const SDL_Point* area, void* 
   return SDL_HITTEST_NORMAL;
 }
 
+/*
 bool maximized(HWND hwnd) {
     WINDOWPLACEMENT placement;
     if (!::GetWindowPlacement(hwnd, &placement)) {
@@ -119,7 +120,7 @@ int incSDLEventWatcher(void* userData, SDL_Event* event)
     {
         case WM_NCCALCSIZE:
         {
-            if (winMsg.wParam == TRUE /* && window.borderless*/) {
+            if (winMsg.wParam == TRUE ) {// && window.borderless) {
                 auto& params = *reinterpret_cast<NCCALCSIZE_PARAMS*>(winMsg.lParam);
                 adjust_maximized_client_rect(handle, params.rgrc[0]);
                 return 0;
@@ -133,6 +134,7 @@ int incSDLEventWatcher(void* userData, SDL_Event* event)
     }
     return 0;
 }
+*/
 
 // we cannot just use WS_POPUP style
 // WS_THICKFRAME: without this the window cannot be resized and so aero snap, de-maximizing and minimizing won't work
@@ -152,6 +154,7 @@ SDL_Window* CreateSdlWindow()
   //Create window
   SDL_SetHintWithPriority("SDL_BORDERLESS_RESIZABLE_STYLE", "1", SDL_HINT_OVERRIDE);
   SDL_SetHintWithPriority("SDL_BORDERLESS_WINDOWED_STYLE", "1", SDL_HINT_OVERRIDE);
+  SDL_SetHintWithPriority("SDL_HINT_WINDOWS_ADJUST_BORDERLESS_MAXIMIZED_CLIENTRECT", "1", SDL_HINT_OVERRIDE);
   auto window = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 600, SDL_WINDOW_BORDERLESS | SDL_WINDOW_RESIZABLE);
   if (window == nullptr)
     return nullptr;
@@ -165,8 +168,8 @@ SDL_Window* CreateSdlWindow()
   //::SetWindowLongPtrW(handle, GWL_STYLE, static_cast<LONG>(Style::aero_borderless));
 
   
-  SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
-  SDL_AddEventWatch(&incSDLEventWatcher, NULL);
+  //SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
+  //SDL_AddEventWatch(&incSDLEventWatcher, NULL);
 
   // when switching between borderless and windowed, restore appropriate shadow state
   static const MARGINS shadow_state[2]{ { 0,0,0,0 },{ 1,1,1,1 } };
